@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Patience — Alpha Built Program</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#080808;--black2:#0f0f0f;--black3:#141414;
+  --white:#f5f3ef;--white2:#c9c6c0;--white3:#8a8680;
+  --blue:#2860f5;--purple:#c678ff;--gold:#d4a843;
+  --green:#22c55e;--red:#ef4444;
+  --bd:rgba(255,255,255,0.07);
+}
+body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;font-weight:300}
+
+/* TABS */
+.tab-bar{position:sticky;top:0;z-index:100;background:rgba(8,8,8,0.97);border-bottom:1px solid var(--bd);display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{padding:12px 4px;text-align:center;cursor:pointer;border-bottom:3px solid transparent;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--white3)}
+.tab.on{color:var(--purple);border-bottom-color:var(--purple)}
+.tab-icon{font-size:1.1rem;display:block;margin-bottom:3px}
+
+.page{display:none;padding-bottom:60px}
+.page.on{display:block}
+
+/* HERO */
+.hero{background:linear-gradient(160deg,#0a051a,#080808);padding:32px 20px;text-align:center;border-bottom:1px solid var(--bd)}
+.hero-tag{font-size:0.5rem;letter-spacing:0.4em;text-transform:uppercase;color:var(--purple);margin-bottom:10px}
+.hero-name{font-family:'Bebas Neue',sans-serif;font-size:2.6rem;letter-spacing:0.04em;line-height:1;margin-bottom:8px}
+.hero-name span{color:var(--purple)}
+.hero-sub{font-size:0.8rem;color:var(--white2);line-height:1.7;max-width:340px;margin:0 auto}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.stat{padding:14px 8px;text-align:center;background:var(--black2)}
+.sv{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1}
+.sl{font-size:0.42rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--white3);margin-top:3px}
+
+/* CARDS */
+.card{background:var(--black2);margin-bottom:3px;border-left:4px solid var(--purple);padding:16px 20px}
+.card.blue{border-left-color:var(--blue)}
+.card.gold{border-left-color:var(--gold)}
+.card.green{border-left-color:var(--green)}
+.card.red{border-left-color:var(--red)}
+.card-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.05em;margin-bottom:6px}
+.card-body{font-size:0.76rem;color:var(--white2);line-height:1.7}
+
+/* SESSION CARDS */
+.session{background:var(--black2);margin-bottom:3px;overflow:hidden}
+.sess-hdr{padding:16px 20px;cursor:pointer;border-left:4px solid var(--purple);display:flex;justify-content:space-between;align-items:center;-webkit-tap-highlight-color:rgba(198,120,255,0.1)}
+.sess-hdr.blue{border-left-color:var(--blue)}
+.sess-hdr.gold{border-left-color:var(--gold)}
+.sess-hdr.green{border-left-color:var(--green)}
+.sess-meta{font-size:0.48rem;letter-spacing:0.24em;text-transform:uppercase;margin-bottom:3px}
+.sess-name{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.04em;line-height:1}
+.sess-focus{font-size:0.68rem;color:var(--white2);margin-top:2px}
+.sess-arr{font-size:1rem;color:var(--white3);transition:transform 0.3s;flex-shrink:0}
+.sess-body{display:none;background:var(--black3)}
+
+/* EXERCISES */
+.wu{padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.04);background:rgba(212,168,67,0.03)}
+.wu-title{font-size:0.46rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.wu-item{font-size:0.7rem;color:var(--white2);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);line-height:1.4}
+.wu-item:last-child{border-bottom:none}
+.ex-list{padding:12px 20px}
+.ex-title{font-size:0.46rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--white3);margin-bottom:10px}
+.ex{padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.ex:last-child{border-bottom:none}
+.ex-name{font-weight:500;font-size:0.8rem;margin-bottom:3px}
+.ex-cue{font-size:0.72rem;color:var(--white3);line-height:1.5;margin-bottom:4px}
+.ex-target{font-size:0.62rem;color:var(--blue)}
+.ex-meta{display:flex;gap:16px;margin-top:5px}
+.em{font-size:0.58rem;color:var(--white3)}<br>
+.em strong{color:var(--white);font-weight:500}
+.ss-label{background:rgba(198,120,255,0.05);border-left:3px solid var(--purple);padding:4px 10px;font-size:0.46rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--purple);margin:4px 0}
+.tip{padding:12px 20px;font-size:0.78rem;color:var(--white2);line-height:1.7;border-left:3px solid var(--purple);background:rgba(198,120,255,0.03);font-style:italic}
+
+/* LOG */
+.sess-log{padding:14px 20px;background:rgba(0,0,0,0.3);border-top:1px solid rgba(198,120,255,0.1)}
+.log-title{font-size:0.48rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--purple);margin-bottom:10px}
+.log-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.log-group label{display:block;font-size:0.44rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--white3);margin-bottom:4px}
+.log-inp{width:100%;background:var(--black2);border:1px solid var(--bd);color:var(--white);font-size:0.78rem;padding:8px 10px;outline:none;font-family:'DM Sans',sans-serif}
+.log-inp:focus{border-color:var(--purple)}
+.log-save{width:100%;background:rgba(198,120,255,0.12);border:1px solid rgba(198,120,255,0.3);color:var(--purple);font-family:'Bebas Neue',sans-serif;font-size:0.88rem;letter-spacing:0.14em;padding:10px;cursor:pointer;margin-top:4px}
+.log-msg{font-size:0.62rem;color:var(--green);margin-top:5px;min-height:16px}
+
+/* NUTRITION */
+.nut-nums{display:grid;grid-template-columns:repeat(2,1fr);gap:2px}
+.nn{padding:12px;background:var(--black2)}
+.nn-l{font-size:0.42rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--white3);margin-bottom:3px}
+.nn-v{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;line-height:1}
+.nn-u{font-size:0.54rem;color:var(--white3);margin-left:2px}
+.meal{background:var(--black2);margin-bottom:3px;overflow:hidden}
+.meal-hdr{padding:12px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;-webkit-tap-highlight-color:rgba(34,197,94,0.1)}
+.meal-icon{font-size:1.2rem}
+.meal-time{font-size:0.44rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--green);margin-bottom:2px}
+.meal-name{font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.04em}
+.meal-kcal{font-family:'Bebas Neue',sans-serif;font-size:0.9rem;color:var(--green);margin-left:auto}
+.meal-body{display:none;padding:12px 18px}
+.meal-opt{margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.meal-opt:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.opt-l{font-size:0.44rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--green);margin-bottom:3px}
+.opt-food{font-size:0.76rem;font-weight:500;margin-bottom:2px}
+.opt-detail{font-size:0.68rem;color:var(--white3);line-height:1.5}
+.rule{padding:14px 20px;background:var(--black2);margin-bottom:3px;border-left:4px solid var(--red);display:flex;gap:12px;align-items:flex-start}
+.rule-n{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:rgba(239,68,68,0.25);flex-shrink:0;line-height:1}
+.rule-title{font-weight:500;font-size:0.8rem;margin-bottom:3px}
+.rule-body{font-size:0.72rem;color:var(--white3);line-height:1.6}
+
+/* PROGRESS */
+.prog-section{padding:16px 20px}
+.prog-title{font-size:0.5rem;letter-spacing:0.26em;text-transform:uppercase;color:var(--purple);margin-bottom:12px}
+.input-form{background:var(--black2);padding:16px;margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.form-group label{display:block;font-size:0.44rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--white3);margin-bottom:4px}
+.form-inp{width:100%;background:var(--black3);border:1px solid var(--bd);color:var(--white);font-size:0.8rem;padding:9px 11px;outline:none;font-family:'DM Sans',sans-serif}
+.form-inp:focus{border-color:var(--green)}
+.form-btn{width:100%;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:var(--green);font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:0.14em;padding:11px;cursor:pointer}
+.history-list{background:var(--black2);margin-bottom:16px}
+.history-hdr{padding:10px 16px;border-bottom:1px solid var(--bd);font-size:0.46rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--white3)}
+.history-row{padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.03);display:grid;grid-template-columns:70px 1fr 70px;gap:8px;font-size:0.7rem;color:var(--white2);align-items:center}
+.history-row:last-child{border-bottom:none}
+.h-date{font-size:0.58rem;color:var(--white3)}
+.h-weight{font-family:'Bebas Neue',sans-serif;font-size:0.95rem;color:var(--purple);text-align:right}
+.milestone-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.ms{background:var(--black2);padding:14px}
+.ms-phase{font-size:0.44rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--purple);margin-bottom:4px}
+.ms-title{font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.04em;margin-bottom:4px}
+.ms-body{font-size:0.66rem;color:var(--white3);line-height:1.55}
+.status-msg{font-size:0.62rem;margin-top:5px;min-height:16px}
+.status-msg.ok{color:var(--green)}
+.status-msg.err{color:var(--red)}
+
+.week-tracker{background:var(--black2);padding:14px 20px;margin-bottom:3px}
+.wt-title{font-size:0.46rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--white3);margin-bottom:10px}
+.wt-days{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.wt-day{background:var(--black3);border:1px solid var(--bd);padding:10px 6px;text-align:center;cursor:pointer;-webkit-tap-highlight-color:rgba(198,120,255,0.1)}
+.wt-day.done{background:rgba(198,120,255,0.12);border-color:rgba(198,120,255,0.3)}
+.wt-day-n{font-family:'Bebas Neue',sans-serif;font-size:0.9rem;color:var(--white3)}
+.wt-day.done .wt-day-n{color:var(--purple)}
+.wt-day-l{font-size:0.42rem;color:var(--white3);margin-top:2px}
+</style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <div class="tab on" id="tab-home" onclick="show('home')"><span class="tab-icon">🏠</span>Home</div>
+  <div class="tab" id="tab-program" onclick="show('program')"><span class="tab-icon">💪</span>Program</div>
+  <div class="tab" id="tab-nutrition" onclick="show('nutrition')"><span class="tab-icon">🥗</span>Nutrition</div>
+  <div class="tab" id="tab-progress" onclick="show('progress')"><span class="tab-icon">📈</span>Progress</div>
+</div>
+
+<!-- HOME -->
+<div class="page on" id="page-home">
+  <div class="hero">
+    <div class="hero-tag">Alpha Built · Self-Guided Program</div>
+    <div class="hero-name">PATIENCE <span>AGAHOZO</span></div>
+    <p class="hero-sub">This program was built specifically for you. Your body, your goal, your schedule. Everything you need is right here across the four tabs.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="sv">53<span style="font-size:0.9rem">kg</span></div><div class="sl">Starting Weight</div></div>
+    <div class="stat"><div class="sv" style="color:var(--gold)">60<span style="font-size:0.9rem">kg</span></div><div class="sl">Your Target</div></div>
+    <div class="stat"><div class="sv" style="color:var(--purple)">4<span style="font-size:0.9rem">×/wk</span></div><div class="sl">Sessions</div></div>
+  </div>
+
+  <div style="height:3px"></div>
+
+  <div class="card" style="margin:0 0 3px">
+    <div class="card-title">Message from Coach Alpha Salim</div>
+    <div class="card-body">Patience — I built this program around everything you shared with me. Your schedule, your gym, your goals, your starting point. This is not a generic plan. Every session, every meal option, every target — all of it is for you specifically. The only thing that makes this work is you showing up. Four mornings a week. Three meals a day. That's it. Everything else is already done. Let's get to work.</div>
+  </div>
+
+  <div class="card blue" style="margin:0 0 3px">
+    <div class="card-title">How Your Program Works</div>
+    <div class="card-body">
+      <strong style="color:var(--white)">4 sessions per week — any 4 mornings.</strong> You have no fixed schedule and that's fine. Pick any 4 mornings each week. Do the sessions in order: 1, 2, 3, 4. Rest at least one day between sessions where possible.<br><br>
+      <strong style="color:var(--white)">Follow each session exactly.</strong> Every exercise is there for a reason. The cues explain everything you need to know.<br><br>
+      <strong style="color:var(--white)">Add weight when sessions feel easy.</strong> When 3×12 feels manageable with good form, add 1–2kg. Log your weights in the Progress tab.<br><br>
+      <strong style="color:var(--white)">Eat 3 meals every day.</strong> Check the Nutrition tab. This matters as much as the training.
+    </div>
+  </div>
+
+  <div class="week-tracker">
+    <div class="wt-title">This Week — Tap to Mark Done</div>
+    <div class="wt-days">
+      <div class="wt-day" id="wd0" onclick="toggleWeek(0)"><div class="wt-day-n">S1</div><div class="wt-day-l">Lower A</div></div>
+      <div class="wt-day" id="wd1" onclick="toggleWeek(1)"><div class="wt-day-n">S2</div><div class="wt-day-l">Upper</div></div>
+      <div class="wt-day" id="wd2" onclick="toggleWeek(2)"><div class="wt-day-n">S3</div><div class="wt-day-l">Lower B</div></div>
+      <div class="wt-day" id="wd3" onclick="toggleWeek(3)"><div class="wt-day-n">S4</div><div class="wt-day-l">Full Body</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRAM -->
+<div class="page" id="page-program">
+  <div style="padding:14px 20px;background:var(--black2);border-bottom:1px solid var(--bd);margin-bottom:3px">
+    <div style="font-size:0.5rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--purple);margin-bottom:6px">Your 4 Sessions — Any 4 Mornings Per Week</div>
+    <div style="font-size:0.72rem;color:var(--white2);line-height:1.6">Do them in order: Session 1 → 2 → 3 → 4. Rest at least one day between sessions when possible. Use the log at the bottom of each session to record your weights.</div>
+  </div>
+
+  <!-- S1 -->
+  <div class="session">
+    <div class="sess-hdr" id="sh1" onclick="toggleSess(1)">
+      <div>
+        <div class="sess-meta" style="color:var(--purple)">Session 1 — Do This First</div>
+        <div class="sess-name">Lower Body A</div>
+        <div class="sess-focus">Squats · RDL · Hip Thrust · Calves · 55 min</div>
+      </div>
+      <div class="sess-arr" id="sa1">▾</div>
+    </div>
+    <div class="sess-body" id="sb1">
+      <div class="wu">
+        <div class="wu-title">Warm-Up — 8 min</div>
+        <div class="wu-item">5 min light walk or bike — easy pace</div>
+        <div class="wu-item">Hip circles × 10 each direction</div>
+        <div class="wu-item">Glute bridge × 15 bodyweight — wake up the glutes</div>
+        <div class="wu-item">Bodyweight squat × 10 slow — find your depth before loading</div>
+      </div>
+      <div class="ex-list">
+        <div class="ex-title">Working Sets</div>
+        <div class="ex">
+          <div class="ex-name">1. Goblet Squat</div>
+          <div class="ex-cue">Hold a dumbbell at your chest. Feet shoulder-width. Squat until thighs go below parallel — full depth. Chest up, heels on floor. This is your main squat movement — learn it well before adding weight.</div>
+          <div class="ex-target">Start: 8–10kg · Add 2kg when 3×12 feels comfortable with clean form</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>12</strong> reps</span><span class="em">Rest <strong>90s</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">2. DB Romanian Deadlift</div>
+          <div class="ex-cue">Push hips back — not down. Feel the stretch in the back of your legs. Keep your back flat. Drive hips forward to stand. Feel the hamstrings working, not lifting heavy.</div>
+          <div class="ex-target">Start: 8–10kg each hand</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>12</strong> reps</span><span class="em">Rest <strong>90s</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">3. DB Hip Thrust</div>
+          <div class="ex-cue">Upper back on bench. Dumbbell on hips. Drive hips up. Squeeze glutes hard at the top — hold for 2 full seconds. Lower slowly. One of the best exercises you can do for glute development.</div>
+          <div class="ex-target">Start: 10–14kg · The 2-second hold is not optional</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>15</strong> reps</span><span class="em">Rest <strong>75s</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">4. Reverse Lunge</div>
+          <div class="ex-cue">Step backward — not forward. Control the descent. Front knee over ankle. Drive through front heel to return. Alternate legs each rep.</div>
+          <div class="ex-target">Start: bodyweight · Add 4–6kg dumbbells when BW feels easy</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>10/leg</strong></span><span class="em">Rest <strong>75s</strong></span></div>
+        </div>
+        <div class="ss-label">Superset ↓ — go straight from A1 to A2, rest 60s after both</div>
+        <div class="ex">
+          <div class="ex-name">A1. Leg Extension</div>
+          <div class="ex-cue">Full lockout at top — hold 1 second. Lower slowly over 3 counts. Feel it in the front of your thigh, not your knee.</div>
+          <div class="ex-target">Light weight · Full range</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>15</strong> reps</span><span class="em">Rest <strong>—</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">A2. Seated Calf Raise</div>
+          <div class="ex-cue">Lower all the way down, pause 2 seconds. Rise to full height. Don't rush — calves respond to full range and volume.</div>
+          <div class="ex-target">Moderate weight · Full range every rep</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>20</strong> reps</span><span class="em">Rest <strong>60s</strong></span></div>
+        </div>
+      </div>
+      <div class="tip">Eat a proper meal 60–90 minutes before this session. Training on empty means running on nothing — you'll feel it. Post-session: protein and carbs within 45 minutes.</div>
+      <div class="sess-log">
+        <div class="log-title">Log Session 1</div>
+        <div class="log-row">
+          <div class="log-group"><label>Goblet Squat</label><input class="log-inp" id="s1a" placeholder="e.g. 10kg × 12"></div>
+          <div class="log-group"><label>Hip Thrust</label><input class="log-inp" id="s1b" placeholder="e.g. 14kg × 15"></div>
+          <div class="log-group"><label>How did it feel?</label><input class="log-inp" id="s1c" placeholder="Easy / Moderate / Hard"></div>
+          <div class="log-group"><label>Notes</label><input class="log-inp" id="s1d" placeholder="Anything to remember..."></div>
+        </div>
+        <button class="log-save" onclick="saveLog(1)">Save to Cloud ☁️</button>
+        <div class="log-msg" id="lm1"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="session">
+    <div class="sess-hdr blue" id="sh2" onclick="toggleSess(2)">
+      <div>
+        <div class="sess-meta" style="color:var(--blue)">Session 2 — Do This Second</div>
+        <div class="sess-name">Upper Body</div>
+        <div class="sess-focus">Chest · Back · Shoulders · Arms · 55 min</div>
+      </div>
+      <div class="sess-arr" id="sa2">▾</div>
+    </div>
+    <div class="sess-body" id="sb2">
+      <div class="wu">
+        <div class="wu-title">Warm-Up — 6 min</div>
+        <div class="wu-item">Arm circles × 15 each direction</div>
+        <div class="wu-item">Shoulder rolls × 15 forward and backward</div>
+        <div class="wu-item">Light dumbbell press × 10 — groove the pattern</div>
+        <div class="wu-item">Dead hang × 20s — open the lats</div>
+      </div>
+      <div class="ex-list">
+        <div class="ex-title">Working Sets</div>
+        <div class="ex">
+          <div class="ex-name">1. DB Chest Press</div>
+          <div class="ex-cue">Flat or incline bench — whichever is available. Lower until you feel a stretch across your chest. Press to full lockout. Don't arch your lower back.</div>
+          <div class="ex-target">Start: 6–8kg each hand · Add 1–2kg when 3×12 feels easy</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>12</strong> reps</span><span class="em">Rest <strong>75s</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">2. Lat Pulldown</div>
+          <div class="ex-cue">Pull bar to upper chest. At the top, let arms fully extend and feel the lats stretch. Squeeze at the bottom for 1 second. Builds the width of your back.</div>
+          <div class="ex-target">Start: 20–30kg · Progress when 12 reps feel easy</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>12</strong> reps</span><span class="em">Rest <strong>75s</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">3. Seated DB Shoulder Press</div>
+          <div class="ex-cue">Sit upright — no leaning back. Lower until elbows drop below shoulder level. Press straight up to full lockout. Keep it strict. Builds shoulder roundness and width.</div>
+          <div class="ex-target">Start: 4–6kg each · Small increments — shoulders are a smaller muscle group</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>12</strong> reps</span><span class="em">Rest <strong>75s</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">4. Seated Cable Row</div>
+          <div class="ex-cue">Sit tall — no rocking. Pull handle to lower chest. Squeeze shoulder blades together, hold 1 second. Return slowly over 3 counts. Builds mid-back thickness.</div>
+          <div class="ex-target">Start: 15–25kg · Feel your back working, not just your arms</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>12</strong> reps</span><span class="em">Rest <strong>75s</strong></span></div>
+        </div>
+        <div class="ss-label">Superset ↓ — go straight from A1 to A2, rest 60s after both</div>
+        <div class="ex">
+          <div class="ex-name">A1. DB Lateral Raise</div>
+          <div class="ex-cue">Slight bend in elbows. Raise to shoulder height, lead with elbows. Lower slowly over 3 counts. Creates visible shoulder width. Keep weight light enough to control fully.</div>
+          <div class="ex-target">Start: 3–5kg · Technique over weight</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>15</strong> reps</span><span class="em">Rest <strong>—</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">A2. DB Bicep Curl</div>
+          <div class="ex-cue">Elbows fixed at sides. Rotate palm upward at the top. Alternate arms. Control the lowering — don't let the weight drop.</div>
+          <div class="ex-target">Start: 5–8kg each</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>10/arm</strong></span><span class="em">Rest <strong>60s</strong></span></div>
+        </div>
+      </div>
+      <div class="tip">Rest at least one day after Session 1 before doing this one. Your lower body needs recovery time. Your upper body is fresh today — push it.</div>
+      <div class="sess-log">
+        <div class="log-title">Log Session 2</div>
+        <div class="log-row">
+          <div class="log-group"><label>Chest Press</label><input class="log-inp" id="s2a" placeholder="e.g. 8kg × 12"></div>
+          <div class="log-group"><label>Lat Pulldown</label><input class="log-inp" id="s2b" placeholder="e.g. 25kg × 12"></div>
+          <div class="log-group"><label>How did it feel?</label><input class="log-inp" id="s2c" placeholder="Easy / Moderate / Hard"></div>
+          <div class="log-group"><label>Notes</label><input class="log-inp" id="s2d" placeholder="Anything to remember..."></div>
+        </div>
+        <button class="log-save" onclick="saveLog(2)">Save to Cloud ☁️</button>
+        <div class="log-msg" id="lm2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="session">
+    <div class="sess-hdr gold" id="sh3" onclick="toggleSess(3)">
+      <div>
+        <div class="sess-meta" style="color:var(--gold)">Session 3 — Do This Third</div>
+        <div class="sess-name">Lower Body B</div>
+        <div class="sess-focus">Hip Thrust Heavy · Walking Lunges · Hamstrings · Core · 55 min</div>
+      </div>
+      <div class="sess-arr" id="sa3">▾</div>
+    </div>
+    <div class="sess-body" id="sb3">
+      <div class="wu">
+        <div class="wu-title">Warm-Up — 8 min</div>
+        <div class="wu-item">5 min light walk or bike</div>
+        <div class="wu-item">90/90 hip stretch × 60s each side</div>
+        <div class="wu-item">Glute bridge × 20 bodyweight</div>
+        <div class="wu-item">Lateral band walk × 10 steps each direction</div>
+      </div>
+      <div class="ex-list">
+        <div class="ex-title">Working Sets</div>
+        <div class="ex">
+          <div class="ex-name">1. Hip Thrust — Heavier</div>
+          <div class="ex-cue">This session the hip thrust is your primary movement — more sets and heavier than Session 1. Drive hips up. Squeeze glutes hard at the top for 2 full seconds. You should feel this almost entirely in your glutes.</div>
+          <div class="ex-target">Barbell 20–30kg or DB 14–18kg · Go heavier than Session 1 · Add weight every week</div>
+          <div class="ex-meta"><span class="em"><strong>4</strong> sets</span><span class="em"><strong>12</strong> reps</span><span class="em">Rest <strong>90s</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">2. Walking Lunges</div>
+          <div class="ex-cue">Full stride forward. Back knee close to floor. Stay upright. Drive through front heel. Hits your quads and glutes from a different angle than Session 1's reverse lunge — that's intentional.</div>
+          <div class="ex-target">Start: bodyweight · Add 6–8kg dumbbells when BW feels easy</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>12/leg</strong></span><span class="em">Rest <strong>75s</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">3. Lying Leg Curl</div>
+          <div class="ex-cue">Face down. Curl slowly. Squeeze at top. Lower over 3 full counts — that slow lowering is where your hamstrings do most of their work. Don't let the weight drop.</div>
+          <div class="ex-target">Moderate weight · Feel the hamstrings, not the knee joint</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>12</strong> reps</span><span class="em">Rest <strong>75s</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">4. Cable Pull-Through</div>
+          <div class="ex-cue">Stand facing away from cable. Push hips back like a Romanian deadlift. Feel the stretch. Drive hips forward. Pure glute and hamstring — keep back flat and let the hips do the work.</div>
+          <div class="ex-target">Light-moderate cable weight</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>15</strong> reps</span><span class="em">Rest <strong>60s</strong></span></div>
+        </div>
+        <div class="ss-label">Core Finisher ↓</div>
+        <div class="ex">
+          <div class="ex-name">C1. Plank</div>
+          <div class="ex-cue">Straight line head to heel. Squeeze glutes and core simultaneously. Breathe normally — don't hold your breath. Build from 20s to 60s over 12 weeks.</div>
+          <div class="ex-target">Start: 3×20s · Add 5 seconds every 2 weeks</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> holds</span><span class="em"><strong>20–40s</strong></span><span class="em">Rest <strong>45s</strong></span></div>
+        </div>
+      </div>
+      <div class="tip">Session 3 is your glute focus day. The hip thrust here is heavier and has more sets than Session 1 — that's by design. Glutes respond to load and volume. Eat well before this one.</div>
+      <div class="sess-log">
+        <div class="log-title">Log Session 3</div>
+        <div class="log-row">
+          <div class="log-group"><label>Hip Thrust</label><input class="log-inp" id="s3a" placeholder="e.g. 25kg × 12"></div>
+          <div class="log-group"><label>Walking Lunges</label><input class="log-inp" id="s3b" placeholder="e.g. BW × 12"></div>
+          <div class="log-group"><label>How did it feel?</label><input class="log-inp" id="s3c" placeholder="Easy / Moderate / Hard"></div>
+          <div class="log-group"><label>Notes</label><input class="log-inp" id="s3d" placeholder="Anything to remember..."></div>
+        </div>
+        <button class="log-save" onclick="saveLog(3)">Save to Cloud ☁️</button>
+        <div class="log-msg" id="lm3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S4 -->
+  <div class="session">
+    <div class="sess-hdr green" id="sh4" onclick="toggleSess(4)">
+      <div>
+        <div class="sess-meta" style="color:var(--green)">Session 4 — Do This Fourth</div>
+        <div class="sess-name">Full Body + Arms</div>
+        <div class="sess-focus">KB Swings · Press · Row · Arms · Core · 55 min</div>
+      </div>
+      <div class="sess-arr" id="sa4">▾</div>
+    </div>
+    <div class="sess-body" id="sb4">
+      <div class="wu">
+        <div class="wu-title">Warm-Up — 6 min</div>
+        <div class="wu-item">5 min light walk or bike</div>
+        <div class="wu-item">Arm circles × 10 each direction</div>
+        <div class="wu-item">Hip hinge × 10 bodyweight — preview the KB swing pattern</div>
+        <div class="wu-item">Light dumbbell press × 8 — shoulder warm-up</div>
+      </div>
+      <div class="ex-list">
+        <div class="ex-title">Working Sets</div>
+        <div class="ex">
+          <div class="ex-name">1. KB or DB Swing</div>
+          <div class="ex-cue">Hinge hips back. Snap hips forward explosively — the bell moves from your hips, not your arms. Bell reaches eye level. Full hip extension at the top. Trains your entire posterior chain in one movement.</div>
+          <div class="ex-target">Start: 8–12kg · Add weight when the movement feels controlled and powerful</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>15</strong> reps</span><span class="em">Rest <strong>75s</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">2. DB Incline Press</div>
+          <div class="ex-cue">45 degree bench. Lower until deep chest stretch. Press to full lockout. Second pressing session of the week — training a muscle twice per week is how you build it faster.</div>
+          <div class="ex-target">Same weight as Session 2 or slightly heavier if it felt easy</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>10</strong> reps</span><span class="em">Rest <strong>75s</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">3. Chest-Supported DB Row</div>
+          <div class="ex-cue">Lie face down on incline bench. Let arms hang fully. Row dumbbells to hips. No rocking or momentum. Pure back work.</div>
+          <div class="ex-target">Start: 8–12kg each hand</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>12</strong> reps</span><span class="em">Rest <strong>75s</strong></span></div>
+        </div>
+        <div class="ss-label">Arms + Core Finisher ↓</div>
+        <div class="ex">
+          <div class="ex-name">A1. Hammer Curl</div>
+          <div class="ex-cue">Thumbs pointing up. No swinging. Builds arm thickness from the side.</div>
+          <div class="ex-target">6–10kg each</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>12</strong> reps</span><span class="em">Rest <strong>—</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">A2. Rope Tricep Pushdown</div>
+          <div class="ex-cue">Elbows pinned. Full extension. Spread rope at bottom for peak contraction. Balanced arms need both biceps and triceps trained.</div>
+          <div class="ex-target">Light-moderate cable weight</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> sets</span><span class="em"><strong>12</strong> reps</span><span class="em">Rest <strong>—</strong></span></div>
+        </div>
+        <div class="ex">
+          <div class="ex-name">A3. Plank</div>
+          <div class="ex-cue">Squeeze everything. Breathe. Hold as long as form stays perfect.</div>
+          <div class="ex-target">3×30–45s · 45s rest between</div>
+          <div class="ex-meta"><span class="em"><strong>3</strong> holds</span><span class="em"><strong>30–45s</strong></span><span class="em">Rest <strong>45s</strong></span></div>
+        </div>
+      </div>
+      <div class="tip">Session 4 closes your week. After this, rest until next week's Session 1. Eat well today and tomorrow — the weekend is when your body actually builds the muscle from the week's work.</div>
+      <div class="sess-log">
+        <div class="log-title">Log Session 4</div>
+        <div class="log-row">
+          <div class="log-group"><label>KB Swing</label><input class="log-inp" id="s4a" placeholder="e.g. 12kg × 15"></div>
+          <div class="log-group"><label>Incline Press</label><input class="log-inp" id="s4b" placeholder="e.g. 8kg × 10"></div>
+          <div class="log-group"><label>How did it feel?</label><input class="log-inp" id="s4c" placeholder="Easy / Moderate / Hard"></div>
+          <div class="log-group"><label>Notes</label><input class="log-inp" id="s4d" placeholder="Anything to remember..."></div>
+        </div>
+        <button class="log-save" onclick="saveLog(4)">Save to Cloud ☁️</button>
+        <div class="log-msg" id="lm4"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NUTRITION -->
+<div class="page" id="page-nutrition">
+  <div style="padding:16px 20px;background:var(--black2);border-bottom:1px solid var(--bd);margin-bottom:3px">
+    <div style="font-size:0.5rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--green);margin-bottom:8px">Your Daily Nutrition Targets</div>
+    <div style="font-size:0.76rem;color:var(--white2);line-height:1.6;margin-bottom:12px">The training builds the body. Food is what it's built from. Three meals every day — that's the foundation of everything else here.</div>
+    <div class="nut-nums">
+      <div class="nn"><div class="nn-l">Training Day</div><div class="nn-v" style="color:var(--blue)">2,200<span class="nn-u">kcal</span></div></div>
+      <div class="nn"><div class="nn-l">Rest Day</div><div class="nn-v">1,900<span class="nn-u">kcal</span></div></div>
+      <div class="nn"><div class="nn-l">Protein Daily</div><div class="nn-v" style="color:var(--gold)">100<span class="nn-u">g min</span></div></div>
+      <div class="nn"><div class="nn-l">Weekly Target</div><div class="nn-v" style="color:var(--green)">+0.3<span class="nn-u">kg</span></div></div>
+    </div>
+  </div>
+
+  <div style="padding:14px 20px;background:rgba(239,68,68,0.05);border-left:4px solid var(--red);margin-bottom:3px">
+    <div style="font-size:0.5rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--red);margin-bottom:6px">The One Rule That Changes Everything</div>
+    <div style="font-size:0.76rem;color:var(--white2);line-height:1.7">You mentioned you skip meals sometimes. At 53kg with a goal of 60kg, that's the main thing holding you back. You can't build 7kg of muscle on an inconsistent food intake. Before anything else — commit to three meals every day. Start there. Everything else follows.</div>
+  </div>
+
+  <div class="meal">
+    <div class="meal-hdr" onclick="toggleMeal('m1')">
+      <span class="meal-icon">🌅</span>
+      <div><div class="meal-time">Morning — Before Gym</div><div class="meal-name">Breakfast</div></div>
+      <div class="meal-kcal">~500 kcal</div>
+    </div>
+    <div class="meal-body" id="m1">
+      <div class="meal-opt"><div class="opt-l">Option A — 5 minutes</div><div class="opt-food">3 boiled or scrambled eggs + 2 slices bread + 1 banana</div><div class="opt-detail">Protein and carbs before training. Easy to make. Eat 60–90 min before your session.</div></div>
+      <div class="meal-opt"><div class="opt-l">Option B — No cooking</div><div class="opt-food">Greek yogurt 200g + granola or mixed nuts + 1 fruit</div><div class="opt-detail">Open the fridge, eat, leave. There is no reason to skip breakfast when this option exists.</div></div>
+      <div class="meal-opt"><div class="opt-l">Option C — Most filling</div><div class="opt-food">Oats 80g cooked in milk + 1 banana + honey</div><div class="opt-detail">Slow release energy — you'll stay full until lunch and have fuel for the entire session.</div></div>
+    </div>
+  </div>
+
+  <div class="meal">
+    <div class="meal-hdr" onclick="toggleMeal('m2')">
+      <span class="meal-icon">☀️</span>
+      <div><div class="meal-time">Midday</div><div class="meal-name">Lunch — Your Biggest Meal</div></div>
+      <div class="meal-kcal">~700 kcal</div>
+    </div>
+    <div class="meal-body" id="m2">
+      <div class="meal-opt"><div class="opt-l">The Framework</div><div class="opt-food">Protein + starch + vegetables — apply to whatever is available</div><div class="opt-detail">Protein: chicken, fish, beef, eggs, or beans. Starch: rice, potato, pasta, or bread. Vegetables: whatever is there. You don't need to cook anything special — just apply the framework to what's already available.</div></div>
+      <div class="meal-opt"><div class="opt-l">The Drink Rule</div><div class="opt-food">Water only with meals — no juice, no soda</div><div class="opt-detail">Sugary drinks add hundreds of empty calories with no benefit for muscle building.</div></div>
+    </div>
+  </div>
+
+  <div class="meal">
+    <div class="meal-hdr" onclick="toggleMeal('m3')">
+      <span class="meal-icon">🍫</span>
+      <div><div class="meal-time">Afternoon</div><div class="meal-name">Snack — Don't Skip This</div></div>
+      <div class="meal-kcal">~300 kcal</div>
+    </div>
+    <div class="meal-body" id="m3">
+      <div class="meal-opt"><div class="opt-l">Best Options</div><div class="opt-food">Groundnuts + banana · 2 boiled eggs + fruit · Bread + peanut butter · Greek yogurt</div><div class="opt-detail">The afternoon gap between lunch and dinner is where ectomorphs lose their calories for the day. This snack fills that gap with something that has both protein and energy.</div></div>
+    </div>
+  </div>
+
+  <div class="meal">
+    <div class="meal-hdr" onclick="toggleMeal('m4')">
+      <span class="meal-icon">🌙</span>
+      <div><div class="meal-time">Evening</div><div class="meal-name">Dinner — Feeds Overnight Recovery</div></div>
+      <div class="meal-kcal">~600 kcal</div>
+    </div>
+    <div class="meal-body" id="m4">
+      <div class="meal-opt"><div class="opt-l">Same Framework as Lunch</div><div class="opt-food">Protein + starch + vegetables · Slightly smaller than lunch</div><div class="opt-detail">Most of your muscle repair happens while you sleep. Dinner is what fuels that recovery. Don't skip it because you're tired.</div></div>
+    </div>
+  </div>
+
+  <div style="padding:14px 20px;background:var(--black2);border-left:4px solid var(--green);margin:3px 0">
+    <div style="font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:6px">If the Scale Isn't Moving</div>
+    <div style="font-size:0.74rem;color:var(--white2);line-height:1.7">Weight not increasing after 2 weeks — add one more snack or increase lunch portion. Your body needs more fuel. Fix the food before changing the training.</div>
+  </div>
+
+  <div style="height:8px"></div>
+  <div style="padding:14px 20px;font-size:0.5rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--red);background:var(--black2);margin-bottom:3px">4 Rules to Keep</div>
+  <div class="rule"><div class="rule-n">01</div><div><div class="rule-title">Show Up 4 Times Per Week — Any 4 Mornings</div><div class="rule-body">No fixed days needed. Pick any 4 mornings each week. Do sessions in order 1, 2, 3, 4. Rest at least one day between sessions where you can.</div></div></div>
+  <div class="rule"><div class="rule-n">02</div><div><div class="rule-title">Eat 3 Meals Every Day</div><div class="rule-body">Not a perfect diet — just three meals. Breakfast, lunch, and dinner. Even small meals count. This single habit is what moves the scale from 53 to 60kg.</div></div></div>
+  <div class="rule"><div class="rule-n">03</div><div><div class="rule-title">Add Weight When Sessions Feel Easy</div><div class="rule-body">When 3×12 feels manageable with good form, add 1–2kg. Log your weights in the Progress tab. If weights aren't going up over time, your body has no reason to grow.</div></div></div>
+  <div class="rule"><div class="rule-n">04</div><div><div class="rule-title">Weigh Yourself Every Sunday Morning</div><div class="rule-body">After bathroom, before food. Same conditions every week. Target: +0.3kg per week. Not moving for 2 weeks means eat more.</div></div></div>
+</div>
+
+<!-- PROGRESS -->
+<div class="page" id="page-progress">
+  <div class="prog-section">
+    <div class="prog-title">Log Your Weight</div>
+    <div class="input-form">
+      <div class="form-grid">
+        <div class="form-group"><label>Body Weight (kg)</label><input class="form-inp" id="bw" placeholder="e.g. 53.4" type="number" step="0.1"></div>
+        <div class="form-group"><label>Date</label><input class="form-inp" id="bw-date" type="date"></div>
+        <div class="form-group"><label>How are you feeling?</label><input class="form-inp" id="bw-feel" placeholder="Good, tired, strong..."></div>
+        <div class="form-group"><label>Notes</label><input class="form-inp" id="bw-notes" placeholder="Anything to mention..."></div>
+      </div>
+      <button class="form-btn" onclick="saveWeight()">Save Weight ☁️</button>
+      <div class="status-msg" id="bw-status"></div>
+    </div>
+
+    <div class="prog-title">Weight History</div>
+    <div class="history-list">
+      <div class="history-hdr">Recent Weigh-Ins</div>
+      <div id="weight-history"><div style="padding:16px;font-size:0.76rem;color:var(--white3);text-align:center;font-style:italic">No weigh-ins logged yet. Add your first above.</div></div>
+    </div>
+
+    <div class="prog-title">Session History</div>
+    <div class="history-list">
+      <div class="history-hdr">Recent Sessions</div>
+      <div id="sess-history"><div style="padding:16px;font-size:0.76rem;color:var(--white3);text-align:center;font-style:italic">No sessions logged yet.</div></div>
+    </div>
+
+    <div class="prog-title">Your 12-Month Journey</div>
+    <div class="milestone-grid">
+      <div class="ms"><div class="ms-phase">Weeks 1–4</div><div class="ms-title">Foundation</div><div class="ms-body">Learning movements. Building the eating habit. Scale shows first +0.5–1kg.</div></div>
+      <div class="ms"><div class="ms-phase" style="color:var(--blue)">Months 2–3</div><div class="ms-title">First Changes</div><div class="ms-body">Shoulders showing shape. Arms fuller. 54–55kg range. Clothes fitting differently.</div></div>
+      <div class="ms"><div class="ms-phase" style="color:var(--gold)">Months 4–6</div><div class="ms-title">Real Transformation</div><div class="ms-body">Visible muscle development. Glutes and legs fuller. 55–57kg range. People notice.</div></div>
+      <div class="ms"><div class="ms-phase" style="color:var(--green)">Months 7–9</div><div class="ms-title">Body Recomposed</div><div class="ms-body">Significantly different physique. Strength PRs. 57–58kg range.</div></div>
+      <div class="ms"><div class="ms-phase" style="color:var(--purple)">Months 10–12</div><div class="ms-title">Target Range</div><div class="ms-body">Approaching 60kg. Full body development balanced. Phase 2 begins.</div></div>
+      <div class="ms" style="border-left:3px solid var(--gold)"><div class="ms-phase" style="color:var(--gold)">Month 12</div><div class="ms-title">60kg — The Goal</div><div class="ms-body">12 months of consistent training and eating. 7kg gained. The body you set out to build.</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var SB = 'https://vxegxrvpjkavflkafhct.supabase.co';
+var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4ZWd4cnZwamthdmZsa2FmaGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0MDA4NjksImV4cCI6MjA5NDk3Njg2OX0.fn4AuryijREphbfxdzvM6GBwkIOLqKpOF7K102Ckh6g';
+
+function show(id) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
+  document.getElementById('page-'+id).classList.add('on');
+  document.getElementById('tab-'+id).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleSess(n) {
+  var body = document.getElementById('sb'+n);
+  var arr = document.getElementById('sa'+n);
+  var isOpen = body.style.display === 'block';
+  body.style.display = isOpen ? 'none' : 'block';
+  arr.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+function toggleMeal(id) {
+  var el = document.getElementById(id);
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+function toggleWeek(i) {
+  var el = document.getElementById('wd'+i);
+  el.classList.toggle('done');
+  var state = [];
+  for(var j=0;j<4;j++) state.push(document.getElementById('wd'+j).classList.contains('done'));
+  localStorage.setItem('p_week', JSON.stringify(state));
+}
+
+function loadWeek() {
+  var s = localStorage.getItem('p_week');
+  if(s) { JSON.parse(s).forEach(function(v,i){ if(v) document.getElementById('wd'+i).classList.add('done'); }); }
+}
+
+async function sbPost(table, data) {
+  try {
+    var r = await fetch(SB+'/rest/v1/'+table, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK,'Prefer':'return=minimal'},
+      body:JSON.stringify(data)
+    });
+    return r.ok;
+  } catch(e){ return false; }
+}
+
+async function sbGet(table, qs) {
+  try {
+    var r = await fetch(SB+'/rest/v1/'+table+'?select=*'+(qs?'&'+qs:''), {headers:{'apikey':SK,'Authorization':'Bearer '+SK}});
+    if(!r.ok) return [];
+    return await r.json();
+  } catch(e){ return []; }
+}
+
+async function saveLog(n) {
+  var ids = {1:['s1a','s1b','s1c','s1d'],2:['s2a','s2b','s2c','s2d'],3:['s3a','s3b','s3c','s3d'],4:['s4a','s4b','s4c','s4d']};
+  var keys = ['main1','main2','feel','notes'];
+  var data = {session_num:n, logged_at:new Date().toISOString()};
+  ids[n].forEach(function(id,i){ data[keys[i]] = document.getElementById(id).value||''; });
+  var msg = document.getElementById('lm'+n);
+  msg.textContent = 'Saving...';
+  var ok = await sbPost('patience_logs', data);
+  if(!ok){ var local=JSON.parse(localStorage.getItem('p_logs')||'[]'); local.push(data); localStorage.setItem('p_logs',JSON.stringify(local)); }
+  msg.textContent = ok ? '✅ Saved to cloud' : '💾 Saved locally';
+  setTimeout(function(){ msg.textContent=''; }, 3000);
+  loadSessionHistory();
+}
+
+async function saveWeight() {
+  var bw = document.getElementById('bw').value;
+  if(!bw){ document.getElementById('bw-status').textContent='Enter your weight first.'; return; }
+  var data = {weight_kg:parseFloat(bw), weigh_date:document.getElementById('bw-date').value||new Date().toISOString().split('T')[0], feel:document.getElementById('bw-feel').value||'', notes:document.getElementById('bw-notes').value||'', logged_at:new Date().toISOString()};
+  document.getElementById('bw-status').textContent='Saving...';
+  var ok = await sbPost('patience_weights', data);
+  if(!ok){ var local=JSON.parse(localStorage.getItem('p_weights')||'[]'); local.push(data); localStorage.setItem('p_weights',JSON.stringify(local)); }
+  document.getElementById('bw-status').textContent = ok?'✅ Weight saved':'💾 Saved locally';
+  document.getElementById('bw').value='';
+  setTimeout(function(){ document.getElementById('bw-status').textContent=''; },3000);
+  loadWeightHistory();
+}
+
+async function loadWeightHistory() {
+  var rows = await sbGet('patience_weights','order=weigh_date.desc&limit=10');
+  if(!rows.length){ var local=JSON.parse(localStorage.getItem('p_weights')||'[]'); rows=local.slice(-10).reverse(); }
+  var el = document.getElementById('weight-history');
+  if(!rows.length){ el.innerHTML='<div style="padding:16px;font-size:0.76rem;color:var(--white3);text-align:center;font-style:italic">No weigh-ins yet.</div>'; return; }
+  el.innerHTML = rows.map(function(r){
+    return '<div class="history-row"><div class="h-date">'+r.weigh_date+'</div><div>'+r.weight_kg+'kg'+(r.feel?' · '+r.feel:'')+'</div><div class="h-weight">'+r.weight_kg+'kg</div></div>';
+  }).join('');
+}
+
+async function loadSessionHistory() {
+  var rows = await sbGet('patience_logs','order=logged_at.desc&limit=8');
+  if(!rows.length){ var local=JSON.parse(localStorage.getItem('p_logs')||'[]'); rows=local.slice(-8).reverse(); }
+  var el = document.getElementById('sess-history');
+  if(!rows.length){ el.innerHTML='<div style="padding:16px;font-size:0.76rem;color:var(--white3);text-align:center;font-style:italic">No sessions logged yet.</div>'; return; }
+  var names={1:'Lower A',2:'Upper',3:'Lower B',4:'Full Body'};
+  el.innerHTML = rows.map(function(r){
+    var d = new Date(r.logged_at).toLocaleDateString();
+    return '<div class="history-row"><div class="h-date">'+d+'</div><div>S'+r.session_num+' — '+names[r.session_num]+(r.main1?' · '+r.main1:'')+'</div><div class="h-weight">S'+r.session_num+'</div></div>';
+  }).join('');
+}
+
+window.addEventListener('load', function(){
+  document.getElementById('bw-date').value = new Date().toISOString().split('T')[0];
+  loadWeek();
+  loadWeightHistory();
+  loadSessionHistory();
+});
+</script>
+</body>
+</html>
